@@ -1,7 +1,7 @@
 defmodule Bus do
   alias Bus.{Subscribers, Event}
 
-  def publish(from, type, payload) do
+  def publish(payload, from, type) do
     event = Event.cast!(from, type, payload)
 
     Subscribers.all()
@@ -10,8 +10,8 @@ defmodule Bus do
     end)
   end
 
-  def publish!(from, type, payload) do
-    case publish(from, type, payload) do
+  def publish!(payload, from, type) do
+    case publish(payload, from, type) do
       {:error, error} -> raise error
       {:ok, results} -> results
     end

@@ -1,14 +1,11 @@
 defmodule Device.Subscriber do
   use Bus.Subscriber, device: 1
 
-  def init do
-    De.bug(__MODULE__, :init)
+  def init(_) do
     {:ok, %{}}
   end
 
-  def handle_call(event, _, state) do
-    De.bug(event, __MODULE__)
-
+  def handle_call(_event, _, state) do
     {:reply, {:ok, :ok}, state}
   end
 end

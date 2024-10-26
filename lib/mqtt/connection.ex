@@ -15,8 +15,7 @@ defmodule Mqtt.Connection do
   defp tortoise_server do
     {
       Tortoise.Transport.Tcp,
-      host: Env.get!(:brocker_host),
-      port: Env.get!(:brocker_port)
+      host: Env.get!(:brocker_host), port: Env.get!(:brocker_port)
     }
   end
 end

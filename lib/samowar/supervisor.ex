@@ -15,18 +15,18 @@ defmodule Samowar.Supervisor do
 
   defp childs do
     [
-      mqtt_connection(),
       registry(),
+      mqtt_connection(),
       device(),
-      logger()
+      logger(),
+      app()
     ]
   end
 
   defp registry do
     {
       Registry,
-      keys: :unique,
-      name: Bus.Subscribers
+      keys: :unique, name: Bus.Subscribers
     }
   end
 
@@ -37,6 +37,7 @@ defmodule Samowar.Supervisor do
     }
   end
 
+  defp app, do: {App, []}
   defp logger, do: {Bus.Logger, []}
   defp device, do: {Device.Subscriber, []}
 end

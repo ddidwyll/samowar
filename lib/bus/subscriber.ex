@@ -3,15 +3,15 @@ defmodule Bus.Subscriber do
     quote location: :keep do
       use GenServer
 
+      alias Bus.Subscribers
+
+      @this __MODULE__
       @registry Bus.Subscribers
+      @sub_name {:via, Registry, {@registry, unquote(name)}}
 
       def start_link(_) do
-        name = unquote(name)
-        order = unquote(order)
-        params = [name: {:via, Registry, {@registry, name}}]
-
-        with {:ok, pid} <- __MODULE__ |> GenServer.start_link([], params),
-             :ok <- Registry.put_meta(@registry, name, order) do
+        with {:ok, pid} <- GenServer.start_link(@this, [], [name: @sub_name]),
+             :ok <- @registry.set_order(unquote(name), unquote(order)) do
           {:ok, pid}
         else
           error -> raise error

@@ -11,14 +11,22 @@ defmodule Bus.Subscribers do
     end
   end
 
+  def set_order(name, order) do
+    @registry |> Registry.put_meta(name, order)
+  end
+
+  def get_order(name) do
+    case @registry |> Registry.meta(name) do
+      {:ok, order} -> order
+      _ -> 999
+    end
+  end
+
   def all do
     @registry
     |> Registry.select(@all_specs)
     |> Enum.sort_by(fn {name, _} ->
-      case @registry |> Registry.meta(name) do
-        {:ok, order} -> order
-        _ -> 999
-      end
+      get_order(name)
     end)
   end
 end

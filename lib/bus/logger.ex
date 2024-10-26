@@ -5,10 +5,11 @@ defmodule Bus.Logger do
 
   @state nil
 
-  def init, do: {:ok, @state}
+  def init(_), do: {:ok, @state}
 
   def handle_call(event, _, _) do
-    Logger.warn(event)
+    "EVENT:[#{event}]" |> Logger.info()
+
     {:reply, {:ok, :ok}, @state}
   end
 end
