@@ -5,12 +5,12 @@ defmodule Bus do
     GenStage.cast(Bus.Producer, {:push, event})
   end
 
-  def push!(payload, from, type, meta \\ %{}) do
+  def push!(payload \\ nil, from, type, name) do
     push!(%{
       payload: payload,
       from: from,
       type: type,
-      meta: meta
+      name: name
     })
   end
 end

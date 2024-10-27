@@ -19,6 +19,7 @@ defmodule Samowar.Supervisor do
     ]
 
     [
+      app(),
       bus_stage(Bus.Producer),
       bus_stage(Device.Stage, Bus.Producer),
       bus_stage(Bus.Consumer, Device.Stage),
@@ -42,4 +43,6 @@ defmodule Samowar.Supervisor do
       start: {Mqtt.Connection, :start_link, []}
     }
   end
+
+  defp app, do: {App, []}
 end

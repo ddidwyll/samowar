@@ -3,15 +3,17 @@ defmodule Bus.Event do
 
   defstruct from: nil,
             type: nil,
+            name: nil,
             meta: %{},
             payload: nil,
             timestamp: nil
 
-  def cast!(%{from: from, type: type} = data)
-      when not is_nil(from) and not is_nil(type) do
+  def cast!(%{from: from, type: type, name: name} = data)
+      when not is_nil(from) and not is_nil(type) and not is_nil(name) do
     %Event{
       from: from,
       type: type,
+      name: name,
       payload: data[:payload],
       meta: data[:meta] || %{},
       timestamp: System.os_time()
@@ -20,8 +22,8 @@ defmodule Bus.Event do
 
   def cast!(data), do: raise("broken event: #{inspect(data)}")
 
-  def cast!(payload, from, type, meta \\ %{}) do
-    cast!(%{from: from, type: type, payload: payload, meta: meta})
+  def cast!(payload, from, type, name, meta \\ %{}) do
+    cast!(%{from: from, type: type, name: name, payload: payload, meta: meta})
   end
 
   defimpl String.Chars, for: Event do
@@ -36,11 +38,15 @@ defmodule Bus.Event do
         end
 
       [
-        event.from,
-        event.type,
-        payload,
-        event.timestamp
+        from: event.from,
+        type: event.type,
+        name: event.name,
+        payload: payload,
+        ts: event.timestamp
       ]
+      |> Enum.map(fn {key, val} ->
+        "#{key}:#{val}"
+      end)
       |> Enum.join("|")
     end
   end
