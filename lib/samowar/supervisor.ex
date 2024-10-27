@@ -15,19 +15,19 @@ defmodule Samowar.Supervisor do
 
   defp childs do
     [
-      registry(),
-      mqtt_connection(),
-      device(),
-      logger(),
-      app()
+      registry()
     ]
 
     [
-      {Bus.Producer, []},
-      {Device.Stage, [Bus.Producer]},
-      {Bus.Consumer, [Device.Stage]}
+      bus_stage(Bus.Producer),
+      bus_stage(Device.Stage, Bus.Producer),
+      bus_stage(Bus.Consumer, Device.Stage),
+      mqtt_connection()
     ]
   end
+
+  defp bus_stage(module, subscribe_to \\ []),
+    do: {module, subscribe_to}
 
   defp registry do
     {
@@ -42,8 +42,4 @@ defmodule Samowar.Supervisor do
       start: {Mqtt.Connection, :start_link, []}
     }
   end
-
-  defp app, do: {App, []}
-  defp logger, do: {Bus.Logger, []}
-  defp device, do: {Device.Subscriber, []}
 end

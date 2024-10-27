@@ -1,5 +1,5 @@
 defmodule Bus.Stage do
-  defmacro __using__(:producer_consumer) do
+  defmacro __using__(role) when role in [:producer_consumer, :consumer] do
     quote location: :keep do
       use GenStage
 
@@ -10,7 +10,14 @@ defmodule Bus.Stage do
       end
 
       def init(subscribe_to) do
-        {:producer_consumer, nil, subscribe_to: {subscribe_to, [max_demand: 1]}}
+        state =
+          if function_exported?(@this, :state, 0),
+            do: apply(@this, :state, []),
+            else: nil
+
+        params = [subscribe_to: [{subscribe_to, max_demand: 1}]]
+
+        {unquote(role), state, params}
       end
 
       def handle_events([%Bus.Event{} = event], _, state) do
@@ -21,16 +28,25 @@ defmodule Bus.Stage do
             true -> nil
           end
 
+        next = fn events ->
+          case unquote(role) do
+            :consumer -> []
+            _ -> events
+          end
+        end
+
         if args do
           case apply(@this, :handle_event, args) do
-            {:state, state} -> {:noreply, [event], state}
-            {:event, event} -> {:noreply, [event], state}
+            {:state, state} -> {:noreply, next.([event]), state}
+            {:event, event} -> {:noreply, next.([event]), state}
+            {:events, events} -> {:noreply, next.(events), state}
+            {:ok, event, state} -> {:noreply, next.([event]), state}
             {:error, error} -> raise error
-            _ -> {:noreply, [event], state}
+            _ -> {:noreply, next.([event]), state}
           end
         else
           De.bug(event, @this)
-          {:noreply, [event], state}
+          {:noreply, next.([event]), state}
         end
       end
 
@@ -38,11 +54,11 @@ defmodule Bus.Stage do
         raise "unexpected events: #{inspect(events)}, state: #{inspect(state)}"
       end
 
-      defoverridable init: 1, handle_events: 2
+      defoverridable init: 1, handle_events: 3
     end
   end
 
-  defmacro __using__(_) do
+  defmacro __using__(:producer) do
     quote location: :keep do
       use GenStage
 
