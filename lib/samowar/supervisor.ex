@@ -21,6 +21,12 @@ defmodule Samowar.Supervisor do
       logger(),
       app()
     ]
+
+    [
+      {Bus.Producer, []},
+      {Device.Stage, [Bus.Producer]},
+      {Bus.Consumer, [Device.Stage]}
+    ]
   end
 
   defp registry do

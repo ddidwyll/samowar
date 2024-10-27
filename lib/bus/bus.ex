@@ -1,19 +1,16 @@
 defmodule Bus do
-  alias Bus.{Subscribers, Event}
+  def push!(event_data) do
+    event = Bus.Event.cast!(event_data)
 
-  def publish(payload, from, type) do
-    event = Event.cast!(from, type, payload)
-
-    Subscribers.all()
-    |> OK.map_all(fn {_, pid} ->
-      GenServer.call(pid, event)
-    end)
+    GenStage.cast(Bus.Producer, {:push, event})
   end
 
-  def publish!(payload, from, type) do
-    case publish(payload, from, type) do
-      {:error, error} -> raise error
-      {:ok, results} -> results
-    end
+  def push!(payload, from, type, meta \\ %{}) do
+    push!(%{
+      payload: payload,
+      from: from,
+      type: type,
+      meta: meta
+    })
   end
 end
