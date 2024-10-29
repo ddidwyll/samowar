@@ -36,18 +36,26 @@ defmodule Bus.Event do
           payload when is_map(payload) -> JSON.encode!(payload)
           payload -> inspect(payload)
         end
+        |> String.replace(~r/\s+/, " ")
+
+      timestamp =
+        event.timestamp
+        |> DateTime.from_unix!(:nanosecond)
+        |> DateTime.to_time()
 
       [
-        from: event.from,
-        type: event.type,
-        name: event.name,
-        payload: payload,
-        ts: event.timestamp
+        nil: timestamp,
+        f: event.from,
+        t: event.type,
+        n: event.name,
+        p: payload
       ]
-      |> Enum.map(fn {key, val} ->
-        "#{key}:#{val}"
+      |> Enum.map(fn
+        {nil, timestamp} -> "[#{timestamp}"
+        {key, val} -> "#{key}:#{val}"
       end)
       |> Enum.join("|")
+      |> Kernel.<>("]")
     end
   end
 end

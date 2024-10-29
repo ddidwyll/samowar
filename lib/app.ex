@@ -5,16 +5,14 @@ defmodule App do
     %{mqtt: %{}}
   end
 
-  def change(path, value) do
-    path = List.wrap(path)
-
-    if is_function(value) do
-      App.update(path, value)
+  def change(path, val_fun) do
+    with path <- List.wrap(path),
+         {:new, new} <- App.change?(path, val_fun) do
+      change_hook(path, new)
+      log(path, new)
     else
-      App.put(path, value)
+      _ -> :noop
     end
-
-    change_hook(path, value)
   end
 
   def change_hook([:mqtt, :connection], :up) do
@@ -22,4 +20,11 @@ defmodule App do
   end
 
   def change_hook(_, _), do: :noop
+
+  defp log(path, value) do
+    path = Enum.join(path, ".")
+    value = if is_binary(value), do: value, else: inspect(value)
+
+    IO.puts("### App change:\t\t#{path} = #{value}")
+  end
 end

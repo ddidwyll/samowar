@@ -12,9 +12,9 @@ defmodule State do
 
       def get(key, default \\ nil)
 
-      def get(keys, default) when is_list(keys) do
+      def get(path, default) when is_list(path) do
         struct(@this)
-        |> get_in(List.wrap(keys))
+        |> get_in(List.wrap(path))
         |> case do
           nil -> default
           value -> value
@@ -28,24 +28,40 @@ defmodule State do
         end
       end
 
-      def update(keys, fun) do
-        struct(@this)
-        |> update_in(List.wrap(keys), fun)
+      def update(path, fun) do
+        struct(@this) |> update_in(List.wrap(path), fun)
       end
 
-      def put(keys, val) do
-        struct(@this)
-        |> put_in(List.wrap(keys), val)
+      def put(path, val) do
+        struct(@this) |> put_in(List.wrap(path), val)
+      end
+
+      def change?(path, val_fun) do
+        @this
+        |> Agent.get_and_update(fn store ->
+          path = [:state | List.wrap(path)]
+          old = store |> get_in(path)
+
+          new =
+            if is_function(val_fun, 1),
+              do: val_fun.(old),
+              else: val_fun
+
+          if new != old do
+            {{:new, new}, store |> put_in(path, new)}
+          else
+            {:not_changed, store}
+          end
+        end)
       end
 
       def start_link(_ \\ :-) do
         store = %{state: %{}, meta: %{}}
 
-        @this
-        |> function_exported?(:state, 0)
-        |> case do
-          true -> fn -> store.state |> put_in(apply(@this, :state, [])) end
-          false -> fn -> store end
+        if function_exported?(@this, :state, 0) do
+          fn -> %{store | state: apply(@this, :state, [])} end
+        else
+          fn -> store end
         end
         |> Agent.start_link(name: @this)
       end

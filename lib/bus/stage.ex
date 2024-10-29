@@ -5,6 +5,8 @@ defmodule Bus.Stage do
 
       @this __MODULE__
 
+      def log(event), do: @this |> Bus.Stage.log(event)
+
       def start_link(subscribe_to) do
         GenStage.start_link(@this, subscribe_to, name: @this)
       end
@@ -64,9 +66,19 @@ defmodule Bus.Stage do
 
       @this __MODULE__
 
+      def log(event), do: @this |> Bus.Stage.log(event)
+
       def start_link(args) do
         GenStage.start_link(@this, args, name: @this)
       end
     end
+  end
+
+  def log(module, event) do
+    module_name =
+      to_string(module)
+      |> String.trim_leading("Elixir.")
+
+    IO.puts(">>> #{module_name}:\t#{event}")
   end
 end

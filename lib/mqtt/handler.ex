@@ -2,7 +2,7 @@ defmodule Mqtt.Handler do
   use Tortoise.Handler
 
   def connection(status, state) do
-    status |> Bus.push!(:mqtt, :state_change, :connection)
+    status |> Bus.push!(:mqtt, :app_change, :connection)
 
     {:ok, state}
   end
@@ -12,8 +12,8 @@ defmodule Mqtt.Handler do
   end
 
   def subscription(status, topic_filter, state) do
-    topic_filter |> Bus.push!(:mqtt, :state_change, :topic_filter)
-    status |> Bus.push!(:mqtt, :state_change, :subscription_status)
+    topic_filter |> Bus.push!(:mqtt, :app_change, :topic_filter)
+    status |> Bus.push!(:mqtt, :app_change, :subscription_status)
 
     {:ok, state}
   end
