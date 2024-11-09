@@ -1,4 +1,4 @@
-defmodule Device do
+defmodule Device.Raw do
   use State
 
   @doc "Яр-самовар"
@@ -99,26 +99,26 @@ defmodule Device do
   def change(param_id, value, type) do
     with true <- (type in [:desired, :current] && is_binary(value)) || is_number(value),
          {:ok, param_id} <- check_id(param_id),
-         %{id: param_id} = param <- Device.get([:params, param_id]),
+         %{id: param_id} = param <- Device.Raw.get([:params, param_id]),
          {:ok, value} <- cast_value(value, param),
-         {:changed, value} <- Device.change?([:state, type, param_id], value) do
+         {:changed, value} <- Device.Raw.change?([:state, type, param_id], value) do
       check_desired(param)
       change_hook(param_id, value.new)
       log(param, type, value)
     else
       :not_changed -> :noop
-      error -> De.bug({param_id, value, type, error}, "Device wrong param_id")
+      error -> Error.log({param_id, value, type, error}, "Device wrong param_id")
     end
   end
 
   def change_hook(_, _), do: :noop
 
   defp check_desired(%{id: param_id} = param) do
-    with %{^param_id => desired} <- Device.get([:state, :desired]),
-         %{^param_id => current} <- Device.get([:state, :current]),
+    with %{^param_id => desired} <- Device.Raw.get([:state, :desired]),
+         %{^param_id => current} <- Device.Raw.get([:state, :current]),
          false <- is_nil(desired) || is_nil(current),
          false <- equal?(desired, current, param) do
-      IO.puts("!?! Device Need Change")
+      IO.puts("!?! Device.Raw Need Change")
     else
       _ -> :noop
     end

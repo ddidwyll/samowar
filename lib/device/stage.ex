@@ -9,14 +9,14 @@ defmodule Device.Stage do
     # log(event)
 
     event.name
-    |> Device.change(event.payload, :current)
+    |> Device.Raw.change(event.payload, :current)
   end
 
   def handle_event(%{type: :device_request} = event) do
     # log(event)
 
     event.name
-    |> Device.change(event.payload)
+    |> Device.Raw.change(event.payload, :desired)
   end
 
   def handle_event(_), do: :noop

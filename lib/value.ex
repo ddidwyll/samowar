@@ -1,0 +1,2 @@
+defmodule Value do
+end

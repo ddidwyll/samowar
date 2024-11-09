@@ -20,7 +20,7 @@ defmodule Samowar.Supervisor do
 
     [
       app(),
-      device(),
+      device_raw(),
       bus_stage(Bus.Producer),
       bus_stage(Mqtt.Client, Bus.Producer),
       bus_stage(Device.Stage, Mqtt.Client),
@@ -48,5 +48,5 @@ defmodule Samowar.Supervisor do
 
   defp app, do: {App, []}
 
-  defp device, do: {Device, []}
+  defp device_raw, do: {Device.Raw, []}
 end
