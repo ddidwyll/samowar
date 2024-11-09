@@ -2,7 +2,7 @@ defmodule Bus do
   def push!(event_data) do
     event = Bus.Event.cast!(event_data)
 
-    IO.puts("<<< Push:\t\t#{event}")
+    # IO.puts("<<< Push:\t\t#{event}")
     GenStage.cast(Bus.Producer, {:push, event})
   end
 

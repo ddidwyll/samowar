@@ -48,7 +48,8 @@ defmodule State do
               else: val_fun
 
           if new != old do
-            {{:new, new}, store |> put_in(path, new)}
+            result = {:changed, %{new: new, old: old}}
+            {result, store |> put_in(path, new)}
           else
             {:not_changed, store}
           end

@@ -16,13 +16,35 @@ defmodule Device do
     "10" => "отбор подголовников"
   }
 
-  @kontaktor %{"0" => "выкл", "1" => "вкл"}
+  @kontaktor %{"Power OFF" => "выкл", "Power ON" => "вкл"}
+
+  @default_desired %{
+    # term_d_m: 78.0,
+    # press_c_m:,
+    # term_c_max:,
+    # term_c_min:,
+    # term_k_max:,
+    # term_nasos:,
+    power_m: 100.0
+    # otbor:,
+    # time_stop:,
+    # otbor_minus:,
+    # min_otb:,
+    # sek_otb:,
+    # otbor_g_1:,
+    # otbor_g_2:,
+    # otbor_t:,
+    # delta_t:,
+    # term_k_m:,
+    # work:,
+    # kontaktor:
+  }
 
   @params [
     %{id: "term_d", name: "Верх", type: :float, unit: "°C"},
     %{id: "term_c", name: "Низ", type: :float, unit: "°C"},
     %{id: "term_k", name: "Куб", type: :float, unit: "°C"},
-    %{id: "power", name: "Нагрев факт", type: :int, unit: "Вт"},
+    %{id: "power", name: "Нагрев факт", type: :float, unit: "Вт"},
     %{id: "press_a", name: "Давление", type: :float, unit: "мм"},
     %{id: "flag_otb", name: "Режим работы", type: :string},
     %{id: "term_d_m", name: "Верх макc", type: :float, write: :suffix, unit: "°C"},
@@ -31,7 +53,7 @@ defmodule Device do
     %{id: "term_c_min", name: "Царга мин", type: :float, write: :suffix, unit: "°C"},
     %{id: "term_k_max", name: "Куб макc", type: :float, write: :suffix, unit: "°C"},
     %{id: "term_nasos", name: "Включение воды", type: :float, write: :suffix, unit: "°C"},
-    %{id: "power_m", name: "Нагрев", type: :int, write: :suffix, unit: "Вт"},
+    %{id: "power_m", name: "Нагрев", type: :float, write: :suffix, unit: "Вт"},
     %{id: "otbor", name: "Отбор", type: :int, write: :suffix, unit: "?"},
     %{id: "time_stop", name: "Макс время СС", type: :int, write: :suffix, unit: "?"},
     %{id: "otbor_minus", name: "Декремент", type: :int, write: :suffix, unit: "?"},
@@ -43,41 +65,63 @@ defmodule Device do
     %{id: "delta_t", name: "Дельта старта", type: :float, write: :suffix, unit: "°C"},
     %{id: "term_k_m", name: "Разгон до", type: :float, write: "term_k_r", unit: "°C"},
     %{id: "work", name: "Работа", type: @work_enum, write: true},
-    %{id: "kontaktor", name: "Контактор", type: @kontaktor, write: true}
+    %{id: "kontaktor", name: "Контактор", type: @kontaktor, write: true},
+    %{id: "num_error", name: "Ошибка", type: :int},
+    %{id: "count_vent", name: "??? count_vent", type: :int},
+    %{id: "term_vent", name: "??? term_vent", type: :float},
+    %{id: "term_v", name: "??? term_v", type: :float}
   ]
 
   def state do
-    acc = %{params: %{}, state: %{}}
+    acc = %{params: %{}, state: %{desired: %{}, current: %{}}}
+
+    build_write = fn
+      %{write: :suffix, id: id} = param -> %{param | write: "#{id}#{@write_suffix}"}
+      %{write: true, id: id} = param -> %{param | write: to_string(id)}
+      %{write: <<_::binary>>} = param -> param
+      param -> param[:write] |> put_in(nil)
+    end
 
     @params
     |> Enum.reduce(acc, fn %{id: id} = param, acc ->
       atom = String.to_atom(id)
 
       acc[:params][id]
-      |> put_in(%{param | id: atom})
-      |> put_in([:state, atom], nil)
+      |> put_in(build_write.(%{param | id: atom}))
+      |> put_in([:state, :current, atom], nil)
+      |> put_in([:state, :desired, atom], @default_desired[atom])
     end)
   end
 
-  def change(param_id, value) do
-    with true <- is_binary(value) || is_number(value),
+  def change(%{id: param_id, value: value}, type \\ :desired),
+    do: change(param_id, value, type)
+
+  def change(param_id, value, type) do
+    with true <- (type in [:desired, :current] && is_binary(value)) || is_number(value),
          {:ok, param_id} <- check_id(param_id),
          %{id: param_id} = param <- Device.get([:params, param_id]),
          {:ok, value} <- cast_value(value, param),
-         {:new, new} <- Device.change?([:state, param_id], value) do
-      change_hook(param_id, new)
-      log(param_id, new)
+         {:changed, value} <- Device.change?([:state, type, param_id], value) do
+      check_desired(param)
+      change_hook(param_id, value.new)
+      log(param, type, value)
     else
-      error -> De.bug({param_id, value, error}, "Device wrong param_id")
+      :not_changed -> :noop
+      error -> De.bug({param_id, value, type, error}, "Device wrong param_id")
     end
   end
 
   def change_hook(_, _), do: :noop
 
-  defp log(param_id, value) do
-    value = if is_binary(value), do: value, else: inspect(value)
-
-    IO.puts("### Device change:\t#{param_id} = #{value}")
+  defp check_desired(%{id: param_id} = param) do
+    with %{^param_id => desired} <- Device.get([:state, :desired]),
+         %{^param_id => current} <- Device.get([:state, :current]),
+         false <- is_nil(desired) || is_nil(current),
+         false <- equal?(desired, current, param) do
+      IO.puts("!?! Device Need Change")
+    else
+      _ -> :noop
+    end
   end
 
   defp check_id(param_id) when is_binary(param_id) do
@@ -100,6 +144,10 @@ defmodule Device do
        when is_number(value) and type in [:float, :int],
        do: {:ok, value}
 
+  defp cast_value(value, %{type: :string})
+       when is_binary(value),
+       do: {:ok, value}
+
   defp cast_value(key, %{type: opts}) when is_map(opts) do
     with key <- to_string(key) |> String.trim(),
          {:ok, _name} <- Map.fetch(opts, key) do
@@ -107,5 +155,18 @@ defmodule Device do
     else
       _ -> :error
     end
+  end
+
+  defp cast_value(value, %{type: type}) do
+    {:error, "Broken [#{inspect(type)}]: #{inspect(value)}"}
+  end
+
+  defp equal?(value_a, value_b, param) do
+    cast_value(value_a, param) === cast_value(value_b, param)
+  end
+
+  defp log(%{name: param_name, id: param_id}, type, %{old: old} = value) do
+    ["Device", if(old, do: :change, else: :new), type, param_id]
+    |> Log.row({param_name, value}, "###")
   end
 end

@@ -7,9 +7,9 @@ defmodule App do
 
   def change(path, val_fun) do
     with path <- List.wrap(path),
-         {:new, new} <- App.change?(path, val_fun) do
-      change_hook(path, new)
-      log(path, new)
+         {:changed, value} <- App.change?(path, val_fun) do
+      change_hook(path, value.new)
+      log(path, value)
     else
       _ -> :noop
     end
@@ -21,10 +21,10 @@ defmodule App do
 
   def change_hook(_, _), do: :noop
 
-  defp log(path, value) do
+  defp log(path, %{old: old} = value) do
     path = Enum.join(path, ".")
-    value = if is_binary(value), do: value, else: inspect(value)
 
-    IO.puts("### App change:\t\t#{path} = #{value}")
+    ["App", if(old, do: :change, else: :new)]
+    |> Log.row({path, value}, "###")
   end
 end

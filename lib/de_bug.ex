@@ -32,25 +32,25 @@ defmodule De do
   def trace do
     with {_, [_ | _] = st} <- Process.info(self(), :current_stacktrace) do
       Enum.reduce(st, [], fn
-        {_, _, _, [file: 'erl_eval.erl', line: _]}, acc -> acc
-        {_, _, _, [file: 'src/elixir_module.erl', line: _]}, acc -> acc
-        {_, _, _, [file: 'src/elixir_expand.erl', line: _]}, acc -> acc
-        {_, _, _, [file: 'src/elixir_dispatch.erl', line: _]}, acc -> acc
-        {_, _, _, [file: 'src/elixir_compiler.erl', line: _]}, acc -> acc
-        {_, _, _, [file: 'src/elixir_lexical.erl', line: _]}, acc -> acc
-        {_, _, _, [file: 'lists.erl', line: _]}, acc -> acc
-        {_, _, _, [file: 'timer.erl', line: _]}, acc -> acc
-        {_, _, _, [file: 'proc_lib.erl', line: _]}, acc -> acc
-        {_, _, _, [file: 'gen_server.erl', line: _]}, acc -> acc
-        {_, _, _, [file: 'src/elixir.erl', line: _]}, acc -> acc
-        {_, _, _, [file: 'lib/iex/evaluator.ex', line: _]}, acc -> acc
-        {_, _, _, [file: 'lib/error.ex', line: _]}, acc -> acc
-        {_, _, _, [file: 'lib/de_bug.ex', line: _]}, acc -> acc
-        {_, _, _, [file: 'lib/process.ex', line: _]}, acc -> acc
-        {_, _, _, [file: 'lib/macro.ex', line: _]}, acc -> acc
-        {_, _, _, [file: 'lib/enum.ex', line: _]}, acc -> acc
-        {_, _, _, [file: 'lib/ex_unit/runner.ex', line: _]}, acc -> acc
-        {_, _, _, [file: 'lib/kernel/parallel_compiler.ex', line: _]}, acc -> acc
+        {_, _, _, [file: ~c"erl_eval.erl", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"src/elixir_module.erl", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"src/elixir_expand.erl", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"src/elixir_dispatch.erl", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"src/elixir_compiler.erl", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"src/elixir_lexical.erl", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"lists.erl", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"timer.erl", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"proc_lib.erl", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"gen_server.erl", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"src/elixir.erl", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"lib/iex/evaluator.ex", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"lib/error.ex", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"lib/de_bug.ex", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"lib/process.ex", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"lib/macro.ex", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"lib/enum.ex", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"lib/ex_unit/runner.ex", line: _]}, acc -> acc
+        {_, _, _, [file: ~c"lib/kernel/parallel_compiler.ex", line: _]}, acc -> acc
         {m, f, a, [file: file, line: line]}, acc -> ["#{m}.#{f}/#{a} [#{file}:#{line}]" | acc]
         _, acc -> acc
       end)
