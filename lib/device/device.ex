@@ -44,7 +44,7 @@ defmodule Device do
     %{id: "term_d", name: "Верх", type: :float, unit: "°C"},
     %{id: "term_c", name: "Низ", type: :float, unit: "°C"},
     %{id: "term_k", name: "Куб", type: :float, unit: "°C"},
-    %{id: "power", name: "Нагрев факт", type: :float, unit: "Вт"},
+    %{id: "power", name: "Нагрев факт", type: :int, unit: "Вт"},
     %{id: "press_a", name: "Давление", type: :float, unit: "мм"},
     %{id: "flag_otb", name: "Режим работы", type: :string},
     %{id: "term_d_m", name: "Верх макc", type: :float, write: :suffix, unit: "°C"},
@@ -53,7 +53,7 @@ defmodule Device do
     %{id: "term_c_min", name: "Царга мин", type: :float, write: :suffix, unit: "°C"},
     %{id: "term_k_max", name: "Куб макc", type: :float, write: :suffix, unit: "°C"},
     %{id: "term_nasos", name: "Включение воды", type: :float, write: :suffix, unit: "°C"},
-    %{id: "power_m", name: "Нагрев", type: :float, write: :suffix, unit: "Вт"},
+    %{id: "power_m", name: "Нагрев", type: :int, write: :suffix, unit: "Вт"},
     %{id: "otbor", name: "Отбор", type: :int, write: :suffix, unit: "?"},
     %{id: "time_stop", name: "Макс время СС", type: :int, write: :suffix, unit: "?"},
     %{id: "otbor_minus", name: "Декремент", type: :int, write: :suffix, unit: "?"},
@@ -165,8 +165,13 @@ defmodule Device do
     cast_value(value_a, param) === cast_value(value_b, param)
   end
 
-  defp log(%{name: param_name, id: param_id}, type, %{old: old} = value) do
-    ["Device", if(old, do: :change, else: :new), type, param_id]
-    |> Log.row({param_name, value}, "###")
+  defp log(%{name: param_name, id: param_id} = param, type, value) do
+    name =
+      if unit = param[:unit],
+        do: "#{param_name} (#{unit})",
+        else: param_name
+
+    [type, param_id]
+    |> Log.row({name, value}, "DEV")
   end
 end

@@ -24,7 +24,7 @@ defmodule App do
   defp log(path, %{old: old} = value) do
     path = Enum.join(path, ".")
 
-    ["App", if(old, do: :change, else: :new)]
-    |> Log.row({path, value}, "###")
+    if(old, do: :change, else: :new)
+    |> Log.row({path, value}, "APP")
   end
 end

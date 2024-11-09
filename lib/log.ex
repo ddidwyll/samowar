@@ -1,7 +1,8 @@
 defmodule Log do
   @pad " "
+  @joiner "/"
   @prefix_col_width 3
-  @key_col_width 40
+  @key_col_width 25
   @val_col_width 75
   @val_name_width 25
   @val_val_width 25
@@ -14,9 +15,9 @@ defmodule Log do
   def build_row(key, {name, %{old: nil, new: new}}, prefix),
     do: build_row(key, {name, new}, prefix)
 
-  def build_row(key, {name, %{old: old} = value}, prefix) do
-    build_row(key, {name, value}, prefix)
-    |> Kernel.<>(" (#{trunc(old, @val_val_width)}")
+  def build_row(key, {name, %{old: old, new: new}}, prefix) do
+    build_row(key, {name, %{old: nil, new: new}}, prefix)
+    |> Kernel.<>(" (#{trunc(old, @val_val_width)})")
   end
 
   def build_row(key, {name, val}, prefix)
@@ -24,13 +25,14 @@ defmodule Log do
     name = to_len(name, @val_name_width)
     val = to_len(val, @val_val_width)
 
-    build_row(key, "#{name} = #{val}", prefix)
+    build_row(key, "#{name} #{val}", prefix)
   end
 
   def build_row([_ | _] = keys, val, prefix) do
-    key = Enum.join(keys, "|")
-
-    build_row("[#{key}]>", val, prefix)
+    keys
+    |> Enum.reject(&is_nil/1)
+    |> Enum.join(@joiner)
+    |> build_row(val, prefix)
   end
 
   def build_row(key, val, prefix) do
