@@ -83,10 +83,12 @@ defmodule Device.Raw do
 
   def handle_change(param, type, value) do
     log(param, type, value)
+    @this.Handler.change(param, type, value)
   end
 
-  def handle_desired(param, desired, current) do
+  def handle_inconsistent(param, desired, current) do
     log(param, :inconsistent, %{new: current, old: desired})
+    @this.Handler.inconsistent(param, desired, current)
   end
 
   defp log(%{name: param_name, id: param_id} = param, type, value) do
@@ -96,6 +98,6 @@ defmodule Device.Raw do
         else: param_name
 
     [type, param_id]
-    |> Log.row({name, value}, "DEV")
+    |> Log.row({name, value}, "RAW")
   end
 end

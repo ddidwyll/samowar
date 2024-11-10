@@ -7,7 +7,7 @@ defmodule State.WithDesired do
       def defaults, do: %{}
 
       def state do
-        defaults = defaults() |> De.bug(@this)
+        defaults = defaults()
         acc = %{params: %{}, state: %{desired: %{}, current: %{}}}
 
         params()
@@ -53,16 +53,16 @@ defmodule State.WithDesired do
              %{^param_key => current} <- @this.get([:state, :current]),
              false <- is_nil(desired) || is_nil(current),
              false <- Value.equal?(desired, current, param) do
-          handle_desired(param, desired, current)
+          handle_inconsistent(param, desired, current)
         else
           _ -> :noop
         end
       end
 
-      def handle_desired(_, _, _), do: :noop
+      def handle_inconsistent(_, _, _), do: :noop
 
       defoverridable defaults: 0,
-                     handle_desired: 3,
+                     handle_inconsistent: 3,
                      handle_change: 4,
                      handle_change: 3,
                      params: 0,

@@ -1,6 +1,6 @@
 defmodule Value do
   def cast(value, %{type: type})
-       when is_binary(value) and type in [:int, :float] do
+      when is_binary(value) and type in [:int, :float] do
     %{float: Float, int: Integer}[type]
     |> apply(:parse, [String.trim(value)])
     |> case do
@@ -10,12 +10,12 @@ defmodule Value do
   end
 
   def cast(value, %{type: type})
-       when is_number(value) and type in [:float, :int],
-       do: {:ok, value}
+      when is_number(value) and type in [:float, :int],
+      do: {:ok, value}
 
   def cast(value, %{type: :string})
-       when is_binary(value),
-       do: {:ok, value}
+      when is_binary(value),
+      do: {:ok, value}
 
   def cast(key, %{type: opts}) when is_map(opts) do
     with key <- to_string(key) |> String.trim(),
