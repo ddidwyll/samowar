@@ -14,9 +14,13 @@ defmodule State.WithDesired do
         |> Enum.reduce(acc, fn param, acc ->
           id = Param.prepare_id(param.id)
           key = Param.build_key(id)
-          param = param |> Map.merge(%{id: id, key: key})
 
-          unless param[:write] do
+          param =
+            param
+            |> Map.merge(%{id: id, key: key})
+            |> Param.cast()
+
+          unless param.write do
             acc
           else
             acc[:state][:desired][key]
@@ -34,7 +38,7 @@ defmodule State.WithDesired do
         with true <- (type in [:desired, :current] && is_binary(value)) || is_number(value),
              param_id <- Param.prepare_id(param_id),
              %{key: param_key} = param <- @this.get([:params, param_id]),
-             {:ok, value} <- Value.cast(value, param),
+             {:ok, value} <- Value.parse(value, param),
              {:changed, value} <- @this.change?([:state, type, param_key], value) do
           handle_change(param, type, value)
           handle_change(param, type, value.new, value.old)

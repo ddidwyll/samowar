@@ -1,4 +1,10 @@
 defmodule Param do
+  defstruct [:id, :name, :key, :type, :unit, :write]
+
+  def cast(%{} = param), do: struct(Param, param)
+
+  def cast(some), do: some |> Error.log(:broken_param)
+
   def prepare_id(id) when is_binary(id) do
     String.downcase(id)
     |> String.replace(~r/[^\w]/, "")

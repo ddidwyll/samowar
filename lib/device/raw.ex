@@ -93,7 +93,7 @@ defmodule Device.Raw do
 
   defp log(%{name: param_name, id: param_id} = param, type, value) do
     name =
-      if unit = param[:unit],
+      if unit = param.unit,
         do: "#{param_name} (#{unit})",
         else: param_name
 
