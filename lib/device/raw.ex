@@ -82,12 +82,16 @@ defmodule Device.Raw do
   end
 
   def handle_change(param, type, value) do
+    value |> Bus.push(:"raw_#{type}", :change_notice, param.key)
+
     log(param, type, value)
+
     @this.Handler.change(param, type, value)
   end
 
   def handle_inconsistent(param, desired, current) do
     log(param, :inconsistent, %{new: current, old: desired})
+
     @this.Handler.inconsistent(param, desired, current)
   end
 

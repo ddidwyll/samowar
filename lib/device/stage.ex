@@ -5,7 +5,7 @@ defmodule Device.Stage do
     %{}
   end
 
-  def handle_event(%{type: :device_message} = event) do
+  def handle_event(%{type: :mqtt_message} = event) do
     # log(event)
 
     event.name

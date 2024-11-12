@@ -20,8 +20,7 @@ defmodule Log do
     |> Kernel.<>(" (#{trunc(old, @val_val_width)})")
   end
 
-  def build_row(key, {name, val}, prefix)
-      when is_binary(name) do
+  def build_row(key, {name, val}, prefix) do
     name = to_len(name, @val_name_width)
     val = to_len(val, @val_val_width)
 
@@ -57,6 +56,8 @@ defmodule Log do
   def trunc(string, len)
       when is_binary(string) and is_integer(len),
       do: String.slice(string, 0, len)
+
+  def trunc(a, b), do: raise(inspect({a, b}))
 
   def to_len(string, len) do
     trunc(string, len)

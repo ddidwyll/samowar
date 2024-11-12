@@ -16,13 +16,15 @@ defmodule App do
   end
 
   def change_hook([:mqtt, :connection], :up) do
-    Bus.push!(:app, :mqtt_request, :subscribe)
+    Bus.push(:app, :mqtt_request, :subscribe)
   end
 
   def change_hook(_, _), do: :noop
 
   defp log(path, %{old: old} = value) do
     path = Enum.join(path, ".")
+
+    value |> Bus.push(:app, :change_notice, path)
 
     if(old, do: :change, else: :new)
     |> Log.row({path, value}, "APP")
