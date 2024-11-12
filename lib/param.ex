@@ -1,5 +1,5 @@
 defmodule Param do
-  defstruct [:id, :name, :key, :type, :unit, :write]
+  defstruct [:id, :name, :key, :type, :unit, :write, :round]
 
   def cast(%{} = param), do: struct(Param, param)
 

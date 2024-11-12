@@ -22,8 +22,8 @@ defmodule Samowar.Supervisor do
       app(),
       device_raw(),
       bus_stage(Bus.Producer),
-      bus_stage(Mqtt.Client, Bus.Producer),
-      bus_stage(Device.Stage, Mqtt.Client),
+      bus_stage(Mqtt.Stage, Bus.Producer),
+      bus_stage(Device.Stage, Mqtt.Stage),
       bus_stage(Bus.Consumer, Device.Stage),
       mqtt_connection()
     ]

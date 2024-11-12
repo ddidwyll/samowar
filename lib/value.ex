@@ -1,13 +1,17 @@
 defmodule Value do
-  def parse(value, %{type: type})
+  def parse(value, %{type: type} = param)
       when is_binary(value) and type in [:int, :float] do
     %{float: Float, int: Integer}[type]
     |> apply(:parse, [String.trim(value)])
     |> case do
-      {float, _} -> {:ok, float}
+      {number, _} -> number |> parse(param)
       _ -> :error
     end
   end
+
+  def parse(value, %{round: round} = param)
+      when is_number(value) and is_number(round),
+      do: to_default_precision(round(value / round) * round, param)
 
   def parse(value, %{type: type})
       when is_number(value) and type in [:float, :int],
@@ -36,4 +40,10 @@ defmodule Value do
   def equal?(value_a, value_b, param) do
     parse(value_a, param) == parse(value_b, param)
   end
+
+  defp to_default_precision(value, %{type: :float}),
+    do: {:ok, round(value * 10) / 10}
+
+  defp to_default_precision(value, %{type: :int}),
+    do: {:ok, round(value)}
 end
