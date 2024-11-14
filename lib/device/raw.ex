@@ -26,7 +26,7 @@ defmodule Device.Raw do
       # term_c_min:,
       # term_k_max:,
       # term_nasos:,
-      power_m: 100
+      power_m: 110
       # otbor:,
       # time_stop:,
       # otbor_minus:,
@@ -103,6 +103,6 @@ defmodule Device.Raw do
         else: param_name
 
     [type, param_id]
-    |> Log.row({name, value}, "RAW")
+    |> Log.row_stop({name, value}, "RAW")
   end
 end

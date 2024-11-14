@@ -35,7 +35,7 @@ defmodule State.WithDesired do
         do: change(param_id, value, type)
 
       def change(param_id, value, type) do
-        with true <- (type in [:desired, :current] && is_binary(value)) || is_number(value),
+        with true <- type in [:desired, :current] && (is_binary(value) || is_number(value)),
              param_id <- Param.prepare_id(param_id),
              %{key: param_key} = param <- @this.get([:params, param_id]),
              {:ok, value} <- Value.parse(value, param),

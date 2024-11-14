@@ -9,7 +9,7 @@ defmodule Mqtt.Stage do
   defp mqtt_request(%{name: :subscribe}), do: Mqtt.Client.subscribe()
 
   defp mqtt_request(%{name: topic, payload: value})
-      when is_binary(topic) and is_binary(value) do
+       when is_binary(topic) and is_binary(value) do
     De.bug({topic, value}, :mqtt_request)
     Mqtt.Client.publish(topic, value)
   end

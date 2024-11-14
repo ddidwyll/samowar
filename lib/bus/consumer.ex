@@ -7,8 +7,8 @@ defmodule Bus.Consumer do
   end
 
   # def handle_event(%{type: :change_notice} = event) do
-    # [event.from, event.type]
-    # |> Log.row({event.name, event.payload}, "###")
+  # [event.from, event.type]
+  # |> Log.row({event.name, event.payload}, "###")
   # end
 
   def handle_event(_), do: :noop

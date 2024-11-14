@@ -63,4 +63,6 @@ defmodule Log do
     trunc(string, len)
     |> String.pad_trailing(len, @pad)
   end
+
+  def row_stop(_, _, _ \\ :-), do: :noop
 end

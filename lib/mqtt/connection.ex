@@ -11,8 +11,7 @@ defmodule Mqtt.Connection do
   defp build_server do
     {
       Tortoise.Transport.Tcp,
-      host: Mqtt.broker_host(),
-      port: Mqtt.broker_port()
+      host: Mqtt.broker_host(), port: Mqtt.broker_port()
     }
   end
 end

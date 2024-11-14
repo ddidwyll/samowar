@@ -10,8 +10,11 @@ defmodule Value do
   end
 
   def parse(value, %{round: round} = param)
-      when is_number(value) and is_number(round),
-      do: to_default_precision(round(value / round) * round, param)
+      when is_number(value) and is_number(round) do
+    (round(value / round) * round)
+    |> to_default_precision(param)
+    |> OK.wrap()
+  end
 
   def parse(value, %{type: type})
       when is_number(value) and type in [:float, :int],
@@ -41,9 +44,9 @@ defmodule Value do
     parse(value_a, param) == parse(value_b, param)
   end
 
-  defp to_default_precision(value, %{type: :float}),
-    do: {:ok, round(value * 10) / 10}
+  def to_default_precision(value, %{type: :float}),
+    do: round(value * 100) / 100
 
-  defp to_default_precision(value, %{type: :int}),
-    do: {:ok, round(value)}
+  def to_default_precision(value, %{type: :int}),
+    do: round(value)
 end
