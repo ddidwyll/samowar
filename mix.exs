@@ -22,6 +22,7 @@ defmodule Samowar.MixProject do
     [
       {:ok, "~> 2.3"},
       {:json, "~> 1.4"},
+      {:decimal, "~> 2.2"},
       {:gen_stage, "~> 1.2"},
       {:tortoise, "~> 0.10.0"}
     ]

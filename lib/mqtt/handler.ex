@@ -24,7 +24,7 @@ defmodule Mqtt.Handler do
   end
 
   def handle_message(topic_levels, payload, state) do
-    payload |> Bus.push(:mqtt, :mqtt_message, List.last(topic_levels))
+    payload |> Bus.push(:mqtt, :raw_change, List.last(topic_levels))
 
     {:ok, state}
   end

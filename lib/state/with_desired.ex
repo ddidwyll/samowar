@@ -24,10 +24,13 @@ defmodule State.WithDesired do
             acc
           else
             acc[:state][:desired][key]
-            |> put_in(defaults[key])
+            |> put_in(defaults[:desired][key])
           end
           |> put_in([:params, id], param)
-          |> put_in([:state, :current, key], nil)
+          |> put_in(
+            [:state, :current, key],
+            defaults[:current][key]
+          )
         end)
       end
 
@@ -64,6 +67,9 @@ defmodule State.WithDesired do
       end
 
       def handle_inconsistent(_, _, _), do: :noop
+
+      def fetch_desired(key), do: @this.fetch([:state, :desired, key])
+      def fetch_current(key), do: @this.fetch([:state, :current, key])
 
       defoverridable defaults: 0,
                      handle_inconsistent: 3,

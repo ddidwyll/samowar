@@ -13,9 +13,7 @@ defmodule State do
       def get(key, default \\ nil)
 
       def get(path, default) when is_list(path) do
-        struct(@this)
-        |> get_in(List.wrap(path))
-        |> case do
+        case struct(@this) |> get_in(path) do
           nil -> default
           value -> value
         end
@@ -25,6 +23,13 @@ defmodule State do
         case struct(@this) |> Access.fetch(key) do
           {:ok, value} -> value
           _ -> default
+        end
+      end
+
+      def fetch(key_or_path) do
+        case get(key_or_path, :completely_by_accident) do
+          :completely_by_accident -> :error
+          value -> {:ok, value}
         end
       end
 

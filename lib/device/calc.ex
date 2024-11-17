@@ -1,34 +1,61 @@
 defmodule Device.Calc do
   @terms %{
-    term_top_raw: :term_top,
-    term_bottom_raw: :term_bottom,
-    term_cube_raw: :term_cube
+    temp_top_raw: :temp_top,
+    temp_bottom_raw: :temp_bottom
   }
 
-  def handle(param_key, %{new: value})
-      when is_map_key(@terms, param_key) do
-    Device.get([:state, :current, :press_atm_raw])
-    |> Helpers.TempNormalizer.calc(value)
-    |> IO.inspect()
-    |> Bus.push(:calc, :calc_result, @terms[param_key])
+  def handle(:temp_top_raw, %{new: value}) do
+    calc_term({:term, :temp_top_raw, value})
+    calc_temp_diff()
   end
 
-  def handle(:press_atm_raw, %{new: new_press}) do
-    Enum.each(@terms, fn {param_key, _} ->
-      term_value = Device.get([:state, :current, param_key])
-
-      Helpers.TempNormalizer.calc(new_press, term_value)
-      |> IO.inspect()
-      |> Bus.push(:calc, :calc_result, @terms[param_key])
-    end)
+  def handle(:temp_bottom_raw, %{new: value}) do
+    calc_term({:term, :temp_bottom_raw, value})
+    calc_temp_diff()
   end
 
-  def handle(param_key, _)
-      when param_key in [:term_bottom_raw, :term_top_raw] do
-    IO.puts("TODO")
+  def handle(:press_atm, %{new: press}) do
+    calc_term({:press, press})
+  end
+
+  def handle(:power_raw, %{new: power}) do
+    calc_power(power)
   end
 
   def handle(_param_key, _value) do
     # De.bug(value, param_key)
+  end
+
+  defp calc_term({:term, param_key, temp}) do
+    with {:ok, press} <- Device.fetch_current(:press_atm) do
+      Helpers.TempNormalizer.calc(press, temp)
+      |> Bus.push(:calc, :device_change, @terms[param_key])
+    end
+  end
+
+  defp calc_term({:press, press}) do
+    Enum.each(@terms, fn {param_key, _} ->
+      with {:ok, term} = Device.fetch_current(param_key) do
+        Helpers.TempNormalizer.calc(press, term)
+        |> Bus.push(:calc, :device_change, @terms[param_key])
+      end
+    end)
+  end
+
+  defp calc_temp_diff do
+    with {:ok, bottom} <- Device.fetch_current(:temp_bottom_raw),
+         {:ok, top} <- Device.fetch_current(:temp_top_raw) do
+      Number.sub(bottom, top)
+      |> Bus.push(:calc, :device_change, :temp_diff)
+    end
+  end
+
+  defp calc_power(power_raw) do
+    with {:ok, loss_perc} <- Device.fetch_current(:power_loss) do
+      loss_value = Number.mult(power_raw, loss_perc) |> Number.div(100)
+
+      Number.sub(power_raw, loss_value)
+      |> Bus.push(:calc, :device_change, :power)
+    end
   end
 end

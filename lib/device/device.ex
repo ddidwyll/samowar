@@ -1,16 +1,26 @@
 defmodule Device do
   use State.WithDesired
 
+  def defaults do
+    current = %{
+      power_loss: 50
+    }
+
+    %{current: current}
+  end
+
   def params do
     [
-      %{id: :term_top, name: "Верх", type: :float, unit: "°C"},
-      %{id: :term_bottom, name: "Низ", type: :float, unit: "°C"},
-      %{id: :term_cube, name: "Куб", type: :float, unit: "°C"},
-      %{id: :term_top_raw, name: "Верх факт", type: :float, unit: "°C"},
-      %{id: :term_bottom_raw, name: "Низ факт", type: :float, unit: "°C"},
-      %{id: :term_cube_raw, name: "Куб факт", type: :float, unit: "°C"},
-      %{id: :term_diff, name: "Разница", type: :float, unit: "°C"},
-      %{id: :press_atm_raw, name: "Атм давление", type: :float, unit: "мм"}
+      %{id: :temp_top, name: "Верх", type: :float, unit: "°C"},
+      %{id: :temp_bottom, name: "Низ", type: :float, unit: "°C"},
+      %{id: :temp_cube, name: "Куб", type: :float, unit: "°C"},
+      %{id: :temp_top_raw, name: "Верх факт", type: :float, unit: "°C"},
+      %{id: :temp_bottom_raw, name: "Низ факт", type: :float, unit: "°C"},
+      %{id: :temp_diff, name: "Разница", type: :float, unit: "°C"},
+      %{id: :press_atm, name: "Атм давление", type: :float, unit: "мм"},
+      %{id: :power_raw, name: "Нагрев факт", type: :int, unit: "Вт"},
+      %{id: :power_loss, name: "Потери", type: :int, unit: "%"},
+      %{id: :power, name: "Нагрев", type: :int, unit: "Вт", write: true}
     ]
   end
 

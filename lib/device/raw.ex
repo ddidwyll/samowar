@@ -18,8 +18,8 @@ defmodule Device.Raw do
 
   @kontaktor %{"Power OFF" => "выкл", "Power ON" => "вкл"}
 
-  def defaults,
-    do: %{
+  def defaults do
+    desired = %{
       # term_d_m: 78.0,
       # press_c_m:,
       # term_c_max:,
@@ -40,6 +40,9 @@ defmodule Device.Raw do
       # work:,
       # kontaktor:
     }
+
+    %{desired: desired}
+  end
 
   def params do
     [
