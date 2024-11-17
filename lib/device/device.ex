@@ -3,10 +3,17 @@ defmodule Device do
 
   def defaults do
     current = %{
-      power_loss: 50
+      power_loss: 22
     }
 
-    %{current: current}
+    desired = %{
+      power: 100
+    }
+
+    %{
+      current: current,
+      desired: desired
+    }
   end
 
   def params do
@@ -20,7 +27,7 @@ defmodule Device do
       %{id: :press_atm, name: "Атм давление", type: :float, unit: "мм"},
       %{id: :power_raw, name: "Нагрев факт", type: :int, unit: "Вт"},
       %{id: :power_loss, name: "Потери", type: :int, unit: "%"},
-      %{id: :power, name: "Нагрев", type: :int, unit: "Вт", write: true}
+      %{id: :power, name: "Нагрев", type: :int, unit: "Вт", write: true, round: 5}
     ]
   end
 

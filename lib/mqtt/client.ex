@@ -5,6 +5,8 @@ defmodule Mqtt.Client do
   end
 
   def publish(topic, value) do
+    De.bug(value, topic)
+
     Mqtt.client_id()
     |> Tortoise.publish(Mqtt.build_topic(topic), value)
   end

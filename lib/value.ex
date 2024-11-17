@@ -16,9 +16,9 @@ defmodule Value do
     |> OK.wrap()
   end
 
-  def parse(value, %{type: type})
+  def parse(value, %{type: type} = param)
       when is_number(value) and type in [:float, :int],
-      do: {:ok, value}
+      do: {:ok, value |> to_default_precision(param)}
 
   def parse(value, %{type: :string})
       when is_binary(value),

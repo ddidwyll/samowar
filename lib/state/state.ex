@@ -91,7 +91,7 @@ defmodule State do
             {{current, struct(@this)}, %{store | state: new_state}}
           else
             :pop -> {{current, struct(@this)}, %{store | state: Map.drop(state, [key])}}
-            error -> De.bug({error, state, current}, :error)
+            error -> Error.log({error, state, current}, :error)
           end
         end)
       end
@@ -103,7 +103,7 @@ defmodule State do
           with {value, new_state} <- state |> Map.pop(key) do
             {{value, struct(@this)}, new_state}
           else
-            error -> De.bug({error, state}, :error)
+            error -> Error.log({error, state}, :error)
           end
         end)
       end

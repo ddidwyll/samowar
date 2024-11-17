@@ -26,7 +26,7 @@ defmodule Device.Raw do
       # term_c_min:,
       # term_k_max:,
       # term_nasos:,
-      power_m: 110
+      # power_m: 110,
       # otbor:,
       # time_stop:,
       # otbor_minus:,
@@ -49,7 +49,7 @@ defmodule Device.Raw do
       %{id: "term_d", name: "Верх", type: :float, unit: "°C"},
       %{id: "term_c", name: "Низ", type: :float, unit: "°C"},
       %{id: "term_k", name: "Куб", type: :float, unit: "°C"},
-      %{id: "power", name: "Нагрев факт", type: :int, unit: "Вт", round: 10},
+      %{id: "power", name: "Нагрев факт", type: :int, unit: "Вт", round: 5},
       %{id: "press_a", name: "Давление", type: :float, unit: "мм"},
       %{id: "flag_otb", name: "Режим работы", type: :string},
       %{id: "term_d_m", name: "Верх макc", type: :float, write: :suffix, unit: "°C"},

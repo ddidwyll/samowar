@@ -52,9 +52,10 @@ defmodule Device.Calc do
 
   defp calc_power(power_raw) do
     with {:ok, loss_perc} <- Device.fetch_current(:power_loss) do
-      loss_value = Number.mult(power_raw, loss_perc) |> Number.div(100)
+      loss_coef = Number.sub(1, Number.div(loss_perc, 100))
 
-      Number.sub(power_raw, loss_value)
+      power_raw
+      |> Number.mult(loss_coef)
       |> Bus.push(:calc, :device_change, :power)
     end
   end

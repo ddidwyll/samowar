@@ -34,6 +34,15 @@ defmodule State.WithDesired do
         end)
       end
 
+      def params, do: @this.get([:params])
+
+      def desired, do: @this.get([:state, :desired])
+      def current, do: @this.get([:state, :current])
+
+      def fetch_param(key), do: @this.fetch([:params, key])
+      def fetch_desired(key), do: @this.fetch([:state, :desired, key])
+      def fetch_current(key), do: @this.fetch([:state, :current, key])
+
       def change(%{id: param_id, value: value}, type \\ :desired),
         do: change(param_id, value, type)
 
@@ -56,8 +65,8 @@ defmodule State.WithDesired do
       def handle_change(_, _, _, _), do: :noop
 
       defp check_desired(%{key: param_key} = param) do
-        with %{^param_key => desired} <- @this.get([:state, :desired]),
-             %{^param_key => current} <- @this.get([:state, :current]),
+        with %{^param_key => desired} <- @this.desired(),
+             %{^param_key => current} <- @this.current(),
              false <- is_nil(desired) || is_nil(current),
              false <- Value.equal?(desired, current, param) do
           handle_inconsistent(param, desired, current)
@@ -67,9 +76,6 @@ defmodule State.WithDesired do
       end
 
       def handle_inconsistent(_, _, _), do: :noop
-
-      def fetch_desired(key), do: @this.fetch([:state, :desired, key])
-      def fetch_current(key), do: @this.fetch([:state, :current, key])
 
       defoverridable defaults: 0,
                      handle_inconsistent: 3,
