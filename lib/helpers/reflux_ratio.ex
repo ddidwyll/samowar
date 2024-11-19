@@ -1,6 +1,7 @@
 defmodule Helpers.RefluxRatio do
   # Константа: теплота испарения этанола в Дж/кг
-  @vaporization_heat 850_000 # в Дж/кг (850 кДж/кг)
+  # в Дж/кг (850 кДж/кг)
+  @vaporization_heat 850_000
 
   @doc """
   Рассчитывает флегмовое число, зная мощность нагрева (Вт), процент теплопотерь
@@ -16,7 +17,8 @@ defmodule Helpers.RefluxRatio do
       3.24
   """
   def calc(power, collect_kg_h) do
-    collect_q = collect_kg_h * @vaporization_heat / 3600  # переводим Дж/ч в Вт
+    # переводим Дж/ч в Вт
+    collect_q = collect_kg_h * @vaporization_heat / 3600
 
     # 3. Рассчитываем тепловой поток, возвращаемый флегмой
     reflux_q = power - collect_q
@@ -26,4 +28,3 @@ defmodule Helpers.RefluxRatio do
     |> Value.to_default_precision(%{type: :float})
   end
 end
-
