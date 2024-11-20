@@ -22,10 +22,14 @@ defmodule SamowarWeb do
   def router do
     quote do
       use Phoenix.Router, helpers: false
+      use MatrixAppServiceWeb.Routes
 
-      # Import common connection and controller functions to use in pipelines
       import Plug.Conn
       import Phoenix.Controller
+
+      :matrix_app_service
+      |> Application.get_all_env()
+      |> MatrixAppServiceWeb.Routes.routes()
     end
   end
 

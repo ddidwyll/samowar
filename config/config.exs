@@ -38,12 +38,24 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-# Import environment specific config. This must remain at the bottom
-# of this file so it overrides the configuration defined above.
-import_config "#{config_env()}.exs"
-
 config :samowar, env: config_env()
 config :samowar, mqtt_client_id: :samowar_server
 config :samowar, mqtt_broker_host: ~c"192.168.111.1"
 config :samowar, mqtt_broker_port: 1989
 config :samowar, mqtt_topic_prefix: "/samowar/"
+
+config :matrix_app_service,
+  internal_supervisor: true,
+  transaction_adapter: Matrix.Transaction,
+  room_adapter: Matrix.Room,
+  user_adapter: Matrix.User,
+  path: "/matrix/_matrix/app/v1",
+  base_url: "http://127.0.0.1:8008",
+  access_token: "wfghWEGh3wgWHEf3478sHFWE",
+  homeserver_token: "ugw8243igya57aaABGFfgeyu"
+
+config :samowar, matrix_user_id: "@ddidwyll:localhost"
+
+# Import environment specific config. This must remain at the bottom
+# of this file so it overrides the configuration defined above.
+import_config "#{config_env()}.exs"
